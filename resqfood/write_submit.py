@@ -1,16 +1,18 @@
-'use client'
+BASE = '/Users/aayus/Desktop/Galgotiya/resqfood'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import dynamic from 'next/dynamic'
-import { Mic, MicOff, Type, Brain, CheckCircle, Loader2, MapPin, RotateCcw, Send, ArrowLeft, Clock, Users, Leaf, Zap, AlertTriangle } from 'lucide-react'
-import Link from 'next/link'
-import toast from 'react-hot-toast'
-import Navbar from '@/components/Navbar'
-import type { GeminiAnalysis, UrgencyLevel } from '@/lib/types'
+submit_page = '''\'use client\'
 
-const MapView = dynamic(() => import('@/components/MapInner'), {
+import { useState, useRef, useEffect, useCallback } from \'react\'
+import { useRouter } from \'next/navigation\'
+import { motion, AnimatePresence } from \'framer-motion\'
+import dynamic from \'next/dynamic\'
+import { Mic, MicOff, Type, Brain, CheckCircle, Loader2, MapPin, RotateCcw, Send, ArrowLeft, Clock, Users, Leaf, Zap, AlertTriangle } from \'lucide-react\'
+import Link from \'next/link\'
+import toast from \'react-hot-toast\'
+import Navbar from \'@/components/Navbar\'
+import type { GeminiAnalysis, UrgencyLevel } from \'@/lib/types\'
+
+const MapView = dynamic(() => import(\'@/components/MapInner\'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full bg-gray-50 flex items-center justify-center">
@@ -23,19 +25,19 @@ const MapView = dynamic(() => import('@/components/MapInner'), {
 })
 
 const STEPS = [
-  { id:1, label:'Understanding your input...' },
-  { id:2, label:'Extracting food details...' },
-  { id:3, label:'Calculating spoilage window...' },
-  { id:4, label:'Predicting urgency level...' },
-  { id:5, label:'Scoring 4 nearby NGOs...' },
-  { id:6, label:'Analysis complete!' },
+  { id:1, label:\'Understanding your input...\' },
+  { id:2, label:\'Extracting food details...\' },
+  { id:3, label:\'Calculating spoilage window...\' },
+  { id:4, label:\'Predicting urgency level...\' },
+  { id:5, label:\'Scoring 4 nearby NGOs...\' },
+  { id:6, label:\'Analysis complete!\' },
 ]
 
 const SAMPLES = [
-  'Mere paas 40 plate biryani hai, jaldi uthwa lo',
-  '30 plates of leftover paneer curry from office event',
-  '50 plate shaadi ka khana hai, abhi le jao warm hai',
-  'Urgent: 20kg chicken pulao, expires in 2 hours',
+  \'Mere paas 40 plate biryani hai, jaldi uthwa lo\',
+  \'30 plates of leftover paneer curry from office event\',
+  \'50 plate shaadi ka khana hai, abhi le jao warm hai\',
+  \'Urgent: 20kg chicken pulao, expires in 2 hours\',
 ]
 
 function UrgencyArc({ level }: { level: UrgencyLevel }) {
@@ -43,7 +45,7 @@ function UrgencyArc({ level }: { level: UrgencyLevel }) {
   const r=36, cx=44, cy=44
   const circ = Math.PI * r
   const dash = (pct/100)*circ
-  const col = { CRITICAL:'#DC2626', HIGH:'#EA580C', MEDIUM:'#D97706', LOW:'#16A34A' }[level]
+  const col = { CRITICAL:\'#DC2626\', HIGH:\'#EA580C\', MEDIUM:\'#D97706\', LOW:\'#16A34A\' }[level]
   const startX = cx-r, endX = cx+r
 
   return (
@@ -61,50 +63,50 @@ function UrgencyArc({ level }: { level: UrgencyLevel }) {
   )
 }
 
-type Stage = 'input' | 'processing' | 'result' | 'done'
+type Stage = \'input\' | \'processing\' | \'result\' | \'done\'
 
 export default function SubmitFood() {
   const router = useRouter()
-  const [stage, setStage]         = useState<Stage>('input')
-  const [tab, setTab]             = useState<'text'|'voice'>('text')
-  const [text, setText]           = useState('')
-  const [location, setLocation]   = useState('')
+  const [stage, setStage]         = useState<Stage>(\'input\')
+  const [tab, setTab]             = useState<\'text\'|\'voice\'>(\'text\')
+  const [text, setText]           = useState(\'\')
+  const [location, setLocation]   = useState(\'\')
   const [listening, setListening] = useState(false)
   const [step, setStep]           = useState(-1)
   const [confidence, setConfidence] = useState(0)
   const [analysis, setAnalysis]   = useState<GeminiAnalysis|null>(null)
   const [isDemo, setIsDemo]       = useState(false)
-  const [donorName, setDonorName] = useState('Anonymous Donor')
+  const [donorName, setDonorName] = useState(\'Anonymous Donor\')
   const [selectedNGO, setSelectedNGO] = useState<string|null>(null)
   const recognitionRef = useRef<unknown>(null)
 
   useEffect(() => {
-    const role = localStorage.getItem('rq_role')
-    const name = localStorage.getItem('rq_name')
-    if (role !== 'donor') { router.push('/auth'); return }
+    const role = localStorage.getItem(\'rq_role\')
+    const name = localStorage.getItem(\'rq_name\')
+    if (role !== \'donor\') { router.push(\'/auth\'); return }
     if (name) setDonorName(name)
   }, [router])
 
   const toggleVoice = useCallback(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === \'undefined\') return
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) { toast.error('Voice not supported in this browser'); return }
+    if (!SR) { toast.error(\'Voice not supported in this browser\'); return }
     if (listening) { (recognitionRef.current as any)?.stop(); setListening(false); return }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const r: any = new SR()
-    r.lang = 'hi-IN'; r.interimResults = true; r.continuous = false
+    r.lang = \'hi-IN\'; r.interimResults = true; r.continuous = false
     recognitionRef.current = r
     r.onstart  = () => setListening(true)
-    r.onresult = (e: any) => setText(Array.from({length:e.results.length},(_,i)=>e.results[i][0].transcript).join(''))
+    r.onresult = (e: any) => setText(Array.from({length:e.results.length},(_,i)=>e.results[i][0].transcript).join(\'\'))
     r.onend    = () => setListening(false)
-    r.onerror  = () => { setListening(false); toast.error('Voice error') }
+    r.onerror  = () => { setListening(false); toast.error(\'Voice error\') }
     r.start()
   }, [listening])
 
   async function analyze() {
-    if (!text.trim()) { toast.error('Please describe your food'); return }
-    setStage('processing')
+    if (!text.trim()) { toast.error(\'Please describe your food\'); return }
+    setStage(\'processing\')
     setStep(0)
     setConfidence(0)
 
@@ -116,42 +118,42 @@ export default function SubmitFood() {
     }
 
     try {
-      const res  = await fetch('/api/gemini/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text}) })
+      const res  = await fetch(\'/api/gemini/analyze\', { method:\'POST\', headers:{\'Content-Type\':\'application/json\'}, body:JSON.stringify({text}) })
       const data = await res.json()
       if (!data.success) throw new Error(data.error)
       setAnalysis(data.data)
       setIsDemo(!!data.demo)
-      setSelectedNGO('ngo-1') // Highlight best NGO on map
-      setStage('result')
+      setSelectedNGO(\'ngo-1\') // Highlight best NGO on map
+      setStage(\'result\')
     } catch {
-      toast.error('Analysis failed. Please try again.')
-      setStage('input'); setStep(-1)
+      toast.error(\'Analysis failed. Please try again.\')
+      setStage(\'input\'); setStep(-1)
     }
   }
 
   async function submit() {
     if (!analysis) return
     try {
-      const res  = await fetch('/api/donations', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ donorId:'donor-1', donorName, location:location||'Delhi, India', rawInput:text, analysis }),
+      const res  = await fetch(\'/api/donations\', {
+        method:\'POST\', headers:{\'Content-Type\':\'application/json\'},
+        body:JSON.stringify({ donorId:\'donor-1\', donorName, location:location||\'Delhi, India\', rawInput:text, analysis }),
       })
       const data = await res.json()
       if (!data.success) throw new Error()
-      setStage('done')
-      toast.success('Food listed! NGO has been notified.')
+      setStage(\'done\')
+      toast.success(\'Food listed! NGO has been notified.\')
     } catch {
-      toast.error('Submission failed. Please try again.')
+      toast.error(\'Submission failed. Please try again.\')
     }
   }
 
   function reset() {
-    setStage('input'); setStep(-1); setConfidence(0)
-    setText(''); setLocation(''); setAnalysis(null); setSelectedNGO(null)
+    setStage(\'input\'); setStep(-1); setConfidence(0)
+    setText(\'\'); setLocation(\'\'); setAnalysis(null); setSelectedNGO(null)
   }
 
-  const urgColors: Record<string,string> = { CRITICAL:'#DC2626',HIGH:'#EA580C',MEDIUM:'#D97706',LOW:'#16A34A' }
-  const urgBgs:    Record<string,string> = { CRITICAL:'#FEF2F2',HIGH:'#FFF7ED',MEDIUM:'#FFFBEB',LOW:'#F0FDF4' }
+  const urgColors: Record<string,string> = { CRITICAL:\'#DC2626\',HIGH:\'#EA580C\',MEDIUM:\'#D97706\',LOW:\'#16A34A\' }
+  const urgBgs:    Record<string,string> = { CRITICAL:\'#FEF2F2\',HIGH:\'#FFF7ED\',MEDIUM:\'#FFFBEB\',LOW:\'#F0FDF4\' }
 
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col">
@@ -162,10 +164,10 @@ export default function SubmitFood() {
 
         {/* ── LEFT: Map ─────────────────────────────────────────────── */}
         <div className="relative flex-1 bg-gray-100 hidden md:block">
-          <MapView selectedNGOId={selectedNGO} analyzing={stage==='processing'} />
+          <MapView selectedNGOId={selectedNGO} analyzing={stage===\'processing\'} />
 
           {/* Info overlay on input stage */}
-          {stage === 'input' && (
+          {stage === \'input\' && (
             <div className="absolute top-4 left-4 z-[999] bg-white rounded-xl shadow-card border border-gray-100 p-3 max-w-[200px]">
               <p className="text-xs font-semibold text-gray-700 mb-1">4 NGOs nearby</p>
               <p className="text-xs text-gray-500">Describe your food — AI will select the best match</p>
@@ -173,7 +175,7 @@ export default function SubmitFood() {
           )}
 
           {/* After result: NGO selected banner */}
-          {stage === 'result' && selectedNGO && (
+          {stage === \'result\' && selectedNGO && (
             <motion.div initial={{opacity:0,y:-12}} animate={{opacity:1,y:0}}
               className="absolute top-4 left-4 right-4 z-[999] bg-white rounded-xl shadow-card-md border border-green-200 p-3.5">
               <div className="flex items-center gap-2.5">
@@ -199,7 +201,7 @@ export default function SubmitFood() {
               <ArrowLeft className="w-4 h-4"/>
             </Link>
             <div>
-              <h1 className="text-base font-bold text-gray-900">Donate Surplus Grain</h1>
+              <h1 className="text-base font-bold text-gray-900">Donate Surplus Food</h1>
               <p className="text-xs text-gray-500">Gemini AI processes your description</p>
             </div>
           </div>
@@ -209,36 +211,36 @@ export default function SubmitFood() {
             <AnimatePresence mode="wait">
 
               {/* ── STAGE: INPUT ──────────────────────────────────── */}
-              {stage === 'input' && (
+              {stage === \'input\' && (
                 <motion.div key="input" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}>
 
                   {/* Input mode tabs */}
                   <div className="flex gap-1 p-1 bg-gray-100 rounded-xl mb-4">
-                    {(['text','voice'] as const).map(t => (
+                    {([\'text\',\'voice\'] as const).map(t => (
                       <button key={t} onClick={()=>setTab(t)}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                          tab===t ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
-                        {t==='text' ? <Type className="w-3.5 h-3.5"/> : <Mic className="w-3.5 h-3.5"/>}
-                        {t==='text' ? 'Type' : 'Voice'}
+                          tab===t ? \'bg-white shadow-sm text-gray-900\' : \'text-gray-500 hover:text-gray-700\'}`}>
+                        {t===\'text\' ? <Type className="w-3.5 h-3.5"/> : <Mic className="w-3.5 h-3.5"/>}
+                        {t===\'text\' ? \'Type\' : \'Voice\'}
                       </button>
                     ))}
                   </div>
 
-                  {tab === 'text' && (
+                  {tab === \'text\' && (
                     <textarea value={text} onChange={e=>setText(e.target.value)}
                       placeholder="Describe your food in Hindi or English...&#10;e.g. Mere paas 40 plate biryani hai, jaldi uthwa lo"
                       rows={4} className="textarea mb-3"/>
                   )}
 
-                  {tab === 'voice' && (
+                  {tab === \'voice\' && (
                     <div className="flex flex-col items-center gap-3 py-8 bg-gray-50 rounded-2xl border border-gray-200 mb-4">
                       <button onClick={toggleVoice}
                         className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-                          listening ? 'bg-red-500 shadow-lg shadow-red-500/30' : 'bg-green-50 border-2 border-green-300 hover:bg-green-100'}`}>
+                          listening ? \'bg-red-500 shadow-lg shadow-red-500/30\' : \'bg-green-50 border-2 border-green-300 hover:bg-green-100\'}`}>
                         {listening && <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-60"/>}
                         {listening ? <MicOff className="w-6 h-6 text-white relative z-10"/> : <Mic className="w-6 h-6 text-green-600"/>}
                       </button>
-                      <p className="text-xs text-gray-500">{listening ? 'Listening… speak in Hindi or English' : 'Tap to speak'}</p>
+                      <p className="text-xs text-gray-500">{listening ? \'Listening… speak in Hindi or English\' : \'Tap to speak\'}</p>
                       {text && <div className="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 text-xs text-gray-700 mx-4">{text}</div>}
                     </div>
                   )}
@@ -265,15 +267,15 @@ export default function SubmitFood() {
 
                   <button onClick={analyze} disabled={!text.trim()}
                     className={`w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
-                      text.trim() ? 'bg-green-600 hover:bg-green-700 text-white hover:-translate-y-0.5' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-                    style={text.trim() ? { boxShadow:'0 4px 16px rgba(22,163,74,0.3)' } : {}}>
+                      text.trim() ? \'bg-green-600 hover:bg-green-700 text-white hover:-translate-y-0.5\' : \'bg-gray-100 text-gray-400 cursor-not-allowed\'}`}
+                    style={text.trim() ? { boxShadow:\'0 4px 16px rgba(22,163,74,0.3)\' } : {}}>
                     <Brain className="w-4 h-4"/> Analyze with Gemini
                   </button>
                 </motion.div>
               )}
 
               {/* ── STAGE: PROCESSING ─────────────────────────────── */}
-              {stage === 'processing' && (
+              {stage === \'processing\' && (
                 <motion.div key="processing" initial={{opacity:0,scale:0.97}} animate={{opacity:1,scale:1}} exit={{opacity:0}} className="py-4">
                   <div className="text-center mb-6">
                     <div className="w-14 h-14 mx-auto rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center mb-3">
@@ -299,13 +301,13 @@ export default function SubmitFood() {
                   <div className="space-y-2">
                     {STEPS.map((s,i) => (
                       <div key={s.id} className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border transition-all duration-500 ${
-                        i < step  ? 'border-green-100 bg-green-50' :
-                        i === step ? 'border-violet-200 bg-violet-50' :
-                        'border-transparent opacity-20'}`}>
+                        i < step  ? \'border-green-100 bg-green-50\' :
+                        i === step ? \'border-violet-200 bg-violet-50\' :
+                        \'border-transparent opacity-20\'}`}>
                         {i < step  ? <CheckCircle className="w-4 h-4 text-green-500 shrink-0"/> :
                          i === step ? <Loader2 className="w-4 h-4 text-violet-500 animate-spin shrink-0"/> :
                          <div className="w-4 h-4 rounded-full border border-gray-200 shrink-0"/>}
-                        <span className={`text-xs font-medium ${i < step ? 'text-green-700' : i===step ? 'text-violet-700' : 'text-gray-400'}`}>
+                        <span className={`text-xs font-medium ${i < step ? \'text-green-700\' : i===step ? \'text-violet-700\' : \'text-gray-400\'}`}>
                           {s.label}
                         </span>
                       </div>
@@ -315,13 +317,13 @@ export default function SubmitFood() {
                   {/* Input preview */}
                   <div className="mt-5 p-3 bg-gray-50 rounded-xl border border-gray-100">
                     <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide mb-1">Input</p>
-                    <p className="text-xs text-gray-700 font-mono">{text.slice(0,100)}{text.length>100?'…':''}</p>
+                    <p className="text-xs text-gray-700 font-mono">{text.slice(0,100)}{text.length>100?\'…\':\'\'}</p>
                   </div>
                 </motion.div>
               )}
 
               {/* ── STAGE: RESULT ─────────────────────────────────── */}
-              {stage === 'result' && analysis && (
+              {stage === \'result\' && analysis && (
                 <motion.div key="result" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}>
 
                   {/* Result header */}
@@ -353,13 +355,13 @@ export default function SubmitFood() {
                     </div>
                     <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
                       {[
-                        { icon:Users,  label:'Serves',    val:`${analysis.estimatedServings} people` },
-                        { icon:Leaf,   label:'Type',      val:analysis.dietaryType },
-                        { icon:Clock,  label:'Safe for',  val:`${analysis.spoilageWindowHours}h` },
-                        { icon:Brain,  label:'Language',  val:analysis.detectedLanguage, violet:true },
+                        { icon:Users,  label:\'Serves\',    val:`${analysis.estimatedServings} people` },
+                        { icon:Leaf,   label:\'Type\',      val:analysis.dietaryType },
+                        { icon:Clock,  label:\'Safe for\',  val:`${analysis.spoilageWindowHours}h` },
+                        { icon:Brain,  label:\'Language\',  val:analysis.detectedLanguage, violet:true },
                       ].map(({icon:Icon,label,val,violet}) => (
                         <div key={label} className="flex items-center gap-1.5">
-                          <Icon className={`w-3.5 h-3.5 shrink-0 ${violet ? 'text-violet-500' : 'text-gray-500'}`}/>
+                          <Icon className={`w-3.5 h-3.5 shrink-0 ${violet ? \'text-violet-500\' : \'text-gray-500\'}`}/>
                           <span className="text-gray-500">{label}:</span>
                           <span className="font-semibold text-gray-800 capitalize truncate">{val}</span>
                         </div>
@@ -406,7 +408,7 @@ export default function SubmitFood() {
                     </button>
                     <button onClick={submit}
                       className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-bold transition-all hover:-translate-y-0.5 flex items-center justify-center gap-1.5"
-                      style={{ boxShadow:'0 4px 16px rgba(22,163,74,0.3)' }}>
+                      style={{ boxShadow:\'0 4px 16px rgba(22,163,74,0.3)\' }}>
                       <Send className="w-4 h-4"/> Confirm Donation
                     </button>
                   </div>
@@ -414,9 +416,9 @@ export default function SubmitFood() {
               )}
 
               {/* ── STAGE: DONE ───────────────────────────────────── */}
-              {stage === 'done' && (
+              {stage === \'done\' && (
                 <motion.div key="done" initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} className="py-8 text-center">
-                  <motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:'spring',stiffness:200}}
+                  <motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:\'spring\',stiffness:200}}
                     className="w-20 h-20 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-5">
                     <CheckCircle className="w-10 h-10 text-green-500"/>
                   </motion.div>
@@ -443,3 +445,7 @@ export default function SubmitFood() {
     </div>
   )
 }
+'''
+
+open(f'{BASE}/app/donor/submit/page.tsx', 'w').write(submit_page)
+print('Written submit/page.tsx')

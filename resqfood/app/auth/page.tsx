@@ -62,7 +62,7 @@ export default function AuthPage() {
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
           <Heart className="w-4.5 h-4.5 text-white" fill="white" />
         </div>
-        <span className="text-xl font-bold text-emerald-50">ResQ<span className="text-emerald-400">Food</span></span>
+        <span className="text-xl font-bold text-emerald-50">Gemini<span className="text-emerald-400">Grain</span></span>
       </Link>
 
       <motion.div
@@ -72,7 +72,7 @@ export default function AuthPage() {
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-emerald-50">Choose your role</h1>
-          <p className="text-rq-muted mt-2 text-sm">Select how you want to use ResQFood today</p>
+          <p className="text-rq-muted mt-2 text-sm">Select how you want to use GeminiGrain today</p>
         </div>
 
         <div className="space-y-3">

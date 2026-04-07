@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
-    const prompt = `You are ResQFood AI — a food rescue coordination system for India. Analyze the food donation message below and return ONLY a valid JSON object with no markdown.
+    const prompt = `You are GeminiGrain AI — a food rescue coordination system for India. Analyze the food donation message below and return ONLY a valid JSON object with no markdown.
 
 Message: "${text}"
 

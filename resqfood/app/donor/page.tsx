@@ -61,7 +61,7 @@ export default function DonorDashboard() {
           </div>
           <Link href="/donor/submit"
             className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl shadow-sm shadow-green-600/20 transition-all hover:-translate-y-0.5">
-            <Plus className="w-4 h-4" /> Donate Food
+            <Plus className="w-4 h-4" /> Donate Grain
           </Link>
         </div>
 

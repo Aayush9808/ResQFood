@@ -111,7 +111,7 @@ export default function LandingPage() {
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed mb-8 max-w-[440px]">
               194 million Indians sleep hungry while 40% of food is wasted.
-              ResQFood AI bridges this gap — intelligently, in real time.
+              GeminiGrain AI bridges this gap — intelligently, in real time.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               <Link href="/auth" className="flex items-center gap-2 px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl transition-all hover:-translate-y-0.5 text-sm"
@@ -207,7 +207,7 @@ export default function LandingPage() {
             <div className="w-6 h-6 bg-green-600 rounded-md flex items-center justify-center">
               <Leaf className="w-3.5 h-3.5 text-white"/>
             </div>
-            <span className="font-bold text-sm text-gray-800">ResQ<span className="text-green-600">Food</span></span>
+            <span className="font-bold text-sm text-gray-800">Gemini<span className="text-green-600">Grain</span></span>
           </div>
           <p className="text-xs text-gray-400">Built for HackDays 2026  GCET x HackBase x MLH  Powered by Google Gemini AI</p>
           <div className="flex items-center gap-4 text-xs text-gray-400">

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Leaf, Menu, X, LogOut, Activity } from 'lucide-react'
+import { Leaf, Menu, X, LogOut, Sun, Moon } from 'lucide-react'
+import { useTheme } from './ThemeProvider'
 
 const NAV_LINKS = [
   { href: '/live',   label: 'Live Feed' },
@@ -22,6 +23,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
   const router   = useRouter()
+  const { theme, toggle } = useTheme()
 
   useEffect(() => {
     setRole(localStorage.getItem('rq_role'))
@@ -50,7 +52,7 @@ export default function Navbar() {
             <Leaf className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-gray-900 text-[15px] tracking-tight">
-            ResQ<span className="text-green-600">Food</span>
+            Gemini<span className="text-green-600">Grain</span>
           </span>
         </Link>
 
@@ -74,6 +76,15 @@ export default function Navbar() {
 
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Theme toggle */}
+          <button
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="p-2 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
           {badge && role ? (
             <>
               <Link href={badge.href} className={`text-xs font-semibold px-3 py-1.5 rounded-full ${badge.color}`}>
@@ -81,7 +92,7 @@ export default function Navbar() {
               </Link>
               {role === 'donor' && (
                 <Link href="/donor/submit" className="btn btn-primary text-xs px-3 py-2">
-                  + Donate Food
+                  + Donate Grain
                 </Link>
               )}
               <button onClick={logout} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
@@ -110,6 +121,12 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
+          {/* Theme toggle (mobile) */}
+          <button onClick={toggle}
+            className="flex items-center gap-2 py-2.5 text-sm font-medium text-gray-700 hover:text-green-600 w-full">
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </button>
           {!role && (
             <Link href="/auth" onClick={() => setOpen(false)}
               className="block w-full text-center py-2.5 bg-green-600 text-white text-sm font-semibold rounded-xl mt-2">
