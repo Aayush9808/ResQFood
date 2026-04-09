@@ -3,216 +3,309 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, useInView } from 'framer-motion'
-import { ArrowRight, Leaf, Brain, MapPin, Zap, CheckCircle } from 'lucide-react'
-import Navbar from '@/components/Navbar'
+import { Leaf, Brain, Zap, Users, CheckCircle, ArrowRight, MapPin, Clock, Utensils, Building2, Bike, Globe, Github } from 'lucide-react'
 
-function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0)
+/* ── Animated counter ──────────────────────────────────────────── */
+function Counter({ end, suffix = '', duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
+  const [val, setVal] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const inView = useInView(ref, { once: true })
+
   useEffect(() => {
     if (!inView) return
-    const dur = 1800, start = Date.now()
-    const t = setInterval(() => {
-      const p = Math.min((Date.now()-start)/dur,1)
-      setCount(Math.floor((1-Math.pow(1-p,3))*target))
-      if(p>=1) clearInterval(t)
+    let start = 0
+    const step = end / (duration / 16)
+    const timer = setInterval(() => {
+      start += step
+      if (start >= end) { setVal(end); clearInterval(timer) }
+      else setVal(Math.floor(start))
     }, 16)
-    return () => clearInterval(t)
-  }, [inView, target])
-  return <span ref={ref}>{count.toLocaleString('en-IN')}{suffix}</span>
+    return () => clearInterval(timer)
+  }, [inView, end, duration])
+
+  return <span ref={ref}>{val.toLocaleString()}{suffix}</span>
 }
 
+/* ── AI steps previewer card ───────────────────────────────────── */
+const AI_STEPS = [
+  { icon: '🧠', label: 'Understanding Input',   color: '#7C3AED', step: 1 },
+  { icon: '🔍', label: 'Extracting Food Data',  color: '#EA580C', step: 2 },
+  { icon: '⏱',  label: 'Spoilage Calculation', color: '#2563EB', step: 3 },
+  { icon: '✅', label: 'NGO Matched!',           color: '#16A34A', step: 4 },
+]
+
 function AIHeroCard() {
-  const [step, setStep] = useState(0)
-  const steps = [
-    { text: 'Analyzing: "40 plate biryani ready hai"', color: '#7C3AED', bg: '#F5F3FF' },
-    { text: 'Urgency detected: HIGH  3h window',       color: '#EA580C', bg: '#FFF7ED' },
-    { text: 'Scoring 4 nearby NGOs...',                color: '#2563EB', bg: '#EFF6FF' },
-    { text: 'Best match: Roti Bank  94% confidence',   color: '#16A34A', bg: '#F0FDF4' },
-  ]
+  const [active, setActive] = useState(0)
   useEffect(() => {
-    const id = setInterval(() => setStep(s => (s+1)%(steps.length+1)), 1700)
+    const id = setInterval(() => setActive(p => (p + 1) % AI_STEPS.length), 1400)
     return () => clearInterval(id)
-  }, [steps.length])
+  }, [])
+  const s = AI_STEPS[active]
 
   return (
-    <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3 }}
-      className="w-full max-w-[360px] bg-white rounded-3xl border border-gray-100 p-5 animate-float"
-      style={{ boxShadow:'0 20px 60px -12px rgba(0,0,0,0.15)' }}>
+    <div className="card-raised rounded-2xl p-5 animate-float"
+      style={{ maxWidth: 340, minHeight: 180, position: 'relative', overflow: 'hidden' }}>
+      {/* Glow */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: `radial-gradient(circle at 60% 40%, ${s.color}14, transparent 65%)`,
+        transition: 'background 0.5s',
+      }} />
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center">
-          <Brain className="w-5 h-5 text-violet-600" />
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+          style={{ background: `${s.color}1F`, border: `1px solid ${s.color}33` }}>
+          {s.icon}
         </div>
         <div>
-          <p className="text-sm font-bold text-gray-900">Gemini 1.5 Flash</p>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs text-green-600 font-medium">Processing</span>
-          </div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5"
+            style={{ color: 'var(--th-text-4)' }}>Gemini AI · Step {s.step}/4</p>
+          <p className="text-sm font-bold" style={{ color: s.color }}>{s.label}</p>
         </div>
-        <div className="ml-auto text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">LIVE</div>
       </div>
-      <div className="bg-gray-50 rounded-xl px-3.5 py-2.5 mb-4 font-mono text-xs text-gray-600 border border-gray-100">
-        "Mere paas 40 plate biryani hai, jaldi uthwa lo"
-      </div>
-      <div className="space-y-1.5">
-        {steps.map((s,i) => (
-          <div key={i} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl transition-all duration-500"
-            style={i===step ? { background:s.bg } : { opacity: i<step ? 1 : 0.2 }}>
-            {i<step ? <CheckCircle className="w-4 h-4 text-green-500 shrink-0"/> :
-             i===step ? <div className="w-4 h-4 rounded-full border-2 shrink-0 animate-spin"
-               style={{ borderColor:s.color, borderTopColor:'transparent' }}/> :
-             <div className="w-4 h-4 rounded-full border border-gray-200 shrink-0"/>}
-            <span className="text-xs" style={{ color: i<=step ? (i<step?'#374151':s.color) : '#D1D5DB' }}>{s.text}</span>
-          </div>
+      {/* Progress dots */}
+      <div className="flex gap-1.5">
+        {AI_STEPS.map((_, i) => (
+          <div key={i} className="h-1.5 rounded-full flex-1 transition-all duration-500"
+            style={{ background: i <= active ? s.color : 'var(--th-border)', opacity: i <= active ? 1 : 0.4 }} />
         ))}
       </div>
-      {step >= steps.length && (
-        <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
-          className="mt-3 p-3 bg-green-50 rounded-xl border border-green-200 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold text-green-800">Match confirmed!</p>
-            <p className="text-xs text-green-600 mt-0.5">Roti Bank  2.3 km  18 min pickup</p>
-          </div>
-          <div className="text-2xl font-black text-green-600">94%</div>
-        </motion.div>
-      )}
-    </motion.div>
+      <div className="mt-4 text-xs font-mono px-3 py-2 rounded-lg leading-relaxed"
+        style={{ background: 'var(--th-hover)', color: 'var(--th-text-3)' }}>
+        <span style={{ color: s.color }}>gemini</span>.analyzeFood(<span style={{ color: '#4ADE80' }}>"40 plate biryani"</span>)<br/>
+        → {active === 3 ? <span style={{ color: '#16A34A' }}>match: "Roti Bank Delhi" 94%</span> : <span style={{ color: 'var(--th-text-4)' }}>processing…</span>}
+      </div>
+    </div>
   )
 }
 
-const STEPS = [
-  { n:'01', icon:Brain,   colorCls:'text-violet-600', bgCls:'bg-violet-50', title:'Speak to Gemini',    desc:'Describe food in Hindi or English. Gemini understands quantity, urgency, and dietary type instantly.' },
-  { n:'02', icon:MapPin,  colorCls:'text-green-600',  bgCls:'bg-green-50',  title:'AI Matches Instantly', desc:'Gemini calculates spoilage risk and location to find the perfect NGO within seconds.' },
-  { n:'03', icon:Zap,     colorCls:'text-orange-600', bgCls:'bg-orange-50', title:'Food is Rescued',    desc:'A nearby volunteer is dispatched. Track the entire journey live on the interactive map.' },
+const HOW_STEPS = [
+  { icon: Utensils,  num: '01', title: 'Describe Your Food', desc: 'Type or speak in Hindi or English. Gemini AI understands both.', accent: '#16A34A' },
+  { icon: Brain,     num: '02', title: 'AI Analyzes & Matches', desc: 'Gemini extracts details, calculates urgency, and selects the best NGO.', accent: '#7C3AED' },
+  { icon: Bike,      num: '03', title: 'Volunteer Delivers',   desc: 'A nearby volunteer picks up the food and delivers it within minutes.', accent: '#EA580C' },
 ]
+
 const ROLES = [
-  { role:'donor',     emoji:'🍱', label:'Food Donor',   desc:'Restaurants, events & households', hover:'hover:border-green-400 hover:bg-green-50'  },
-  { role:'ngo',       emoji:'🏥', label:'NGO Partner',  desc:'Shelters, orphanages, kitchens',   hover:'hover:border-amber-400 hover:bg-amber-50'  },
-  { role:'volunteer', emoji:'🛵', label:'Volunteer',    desc:'Help with pickup & delivery',      hover:'hover:border-orange-400 hover:bg-orange-50' },
+  {
+    icon: Utensils,
+    title: 'Food Donors',
+    desc: "Restaurants, hotels, caterers, hostels. Turn leftover food into someone's meal in < 30 minutes.",
+    bullets: ['Describe food by typing or voice', 'AI handles all categorization', 'Track pickup live on map'],
+    accent: '#16A34A', bg: 'var(--th-green-bg)', border: 'var(--th-green-border)', href: '/donor',
+  },
+  {
+    icon: Building2,
+    title: 'NGO Partners',
+    desc: 'Shelters, community kitchens, and schools. Receive AI-matched donations with zero coordination overhead.',
+    bullets: ['Auto-matched by proximity & capacity', 'Urgency-sorted incoming queue', 'Accept or pass with one tap'],
+    accent: '#7C3AED', bg: 'var(--th-violet-bg)', border: 'var(--th-violet-border)', href: '/ngo',
+  },
+  {
+    icon: Bike,
+    title: 'Volunteers',
+    desc: 'Anyone with a bike or car. Pick up matched food and deliver it. Every trip saves a meal.',
+    bullets: ['See all available pickups', 'Claim and track deliveries', 'Real-time route on map'],
+    accent: '#EA580C', bg: 'var(--th-orange-bg)', border: 'var(--th-orange-border)', href: '/volunteer',
+  },
 ]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <div className="page">
+      {/* ── Navbar ─────────────────────────────────────────────── */}
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        background: 'var(--th-overlay)', borderBottom: '1px solid var(--th-border)',
+        backdropFilter: 'blur(16px)',
+      }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', height: 64,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-green"
+              style={{ background: '#16A34A' }}>
+              <Leaf className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--th-text)' }}>
+              Gemini<span style={{ color: '#16A34A' }}>Grain</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/live" className="text-sm font-medium flex items-center gap-1.5"
+              style={{ color: 'var(--th-text-3)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live Feed
+            </Link>
+            <Link href="/auth" className="btn btn-primary text-sm px-4 py-2">
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-      {/* Hero */}
-      <section className="pt-28 pb-24 px-4 overflow-hidden bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          <motion.div initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }} transition={{ duration:0.5 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold mb-6">
-              <Brain className="w-3.5 h-3.5" /> Powered by Google Gemini AI
+      {/* ── Hero ───────────────────────────────────────────────── */}
+      <section style={{ paddingTop: 120, paddingBottom: 80, paddingLeft: 24, paddingRight: 24 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}
+          className="grid-cols-1 md:grid-cols-2">
+          {/* Left */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6"
+              style={{ background: 'var(--th-green-bg)', color: 'var(--th-green-text)', border: '1px solid var(--th-green-border)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Powered by Google Gemini AI
             </div>
-            <h1 className="text-5xl lg:text-[58px] font-black text-gray-950 leading-[1.04] tracking-tight mb-5">
-              Bridging the Gap<br/>Between Food<br/>
-              <span className="gradient-text">Waste &amp; Hunger</span>
+            <h1 style={{ fontSize: 52, fontWeight: 900, lineHeight: 1.1, color: 'var(--th-text)', marginBottom: 20 }}>
+              Food Waste Ends
+              <br />
+              <span className="gradient-text">Here.</span>
             </h1>
-            <p className="text-lg text-gray-500 leading-relaxed mb-8 max-w-[440px]">
-              194 million Indians sleep hungry while 40% of food is wasted.
-              GeminiGrain AI bridges this gap — intelligently, in real time.
+            <p style={{ fontSize: 18, lineHeight: 1.8, color: 'var(--th-text-2)', marginBottom: 32, maxWidth: 480 }}>
+              GeminiGrain AI bridges the gap between surplus food and hunger — intelligently, in real time.
+              Describe your food in Hindi or English. Gemini does the rest.
             </p>
-            <div className="flex flex-wrap gap-3 mb-8">
-              <Link href="/auth" className="flex items-center gap-2 px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl transition-all hover:-translate-y-0.5 text-sm"
-                style={{ boxShadow:'0 4px 16px rgba(22,163,74,0.3)' }}>
-                Donate Food Now <ArrowRight className="w-4 h-4"/>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Link href="/auth" className="btn btn-primary px-6 py-3 text-base">
+                Start Donating <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/live" className="flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-semibold rounded-2xl transition-colors text-sm">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"/> Live Feed
+              <Link href="/live" className="btn btn-secondary px-6 py-3 text-base">
+                Watch Live Feed
               </Link>
             </div>
-            <p className="text-sm text-gray-400 flex items-center gap-4">
-              <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500"/> Free forever</span>
-              <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500"/> Works in Hindi</span>
-              <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500"/> No sign-up</span>
-            </p>
-          </motion.div>
-          <div className="flex justify-center lg:justify-end"><AIHeroCard /></div>
+          </div>
+          {/* Right */}
+          <div className="hidden md:flex justify-center">
+            <AIHeroCard />
+          </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-green-600 py-10 px-4">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {[{v:12847,s:'+',l:'Meals Rescued'},{v:342,s:'kg',l:'CO2 Avoided'},{v:34,s:'',l:'NGOs Online'},{v:98,s:'%',l:'Match Success'}].map(({v,s,l}) => (
-            <div key={l}><div className="text-3xl font-black text-white"><Counter target={v} suffix={s}/></div><div className="text-green-200 text-sm mt-1">{l}</div></div>
+      {/* ── Stats strip ────────────────────────────────────────── */}
+      <section style={{ background: '#16A34A', padding: '28px 24px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32, textAlign: 'center' }}>
+          {[
+            { end: 2847, suffix: '+', label: 'Meals Rescued' },
+            { end: 94,   suffix: '%', label: 'AI Accuracy' },
+            { end: 18,   suffix: 'min', label: 'Avg Pickup Time' },
+            { end: 340,  suffix: 'kg', label: 'CO₂ Avoided' },
+          ].map(({ end, suffix, label }) => (
+            <div key={label}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: '#fff' }}>
+                <Counter end={end} suffix={suffix} />
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 4 }}>{label}</div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-24 px-4 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-black text-gray-900 mb-3">Three Steps. Zero Waste.</h2>
-            <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">From surplus food to hungry mouths — all driven by Gemini AI</p>
+      {/* ── How it works ───────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+          <div className="text-center mb-12">
+            <h2 style={{ fontSize: 36, fontWeight: 900, color: 'var(--th-text)', marginBottom: 12 }}>
+              How it works
+            </h2>
+            <p style={{ color: 'var(--th-text-3)', fontSize: 16 }}>Three steps. Thirty minutes. One saved meal.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {STEPS.map(({n,icon:Icon,colorCls,bgCls,title,desc},i) => (
-              <motion.div key={n} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1}}
-                className="bg-white rounded-2xl p-6 border border-gray-100 shadow-card">
-                <div className={`w-11 h-11 rounded-xl ${bgCls} flex items-center justify-center mb-4`}>
-                  <Icon className={`w-5 h-5 ${colorCls}`}/>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            {HOW_STEPS.map(({ icon: Icon, num, title, desc, accent }, i) => (
+              <motion.div key={num}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="card p-6 card-hover">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    style={{ background: `${accent}18`, border: `1px solid ${accent}2E` }}>
+                    <Icon className="w-6 h-6" style={{ color: accent }} />
+                  </div>
+                  <span style={{ fontSize: 40, fontWeight: 900, color: 'var(--th-border-2)', lineHeight: 1 }}>{num}</span>
                 </div>
-                <div className="text-xs font-mono font-semibold text-gray-400 mb-2">STEP {n}</div>
-                <h3 className="font-bold text-gray-900 mb-2 text-base">{title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+                <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--th-text)' }}>{title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--th-text-3)' }}>{desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Roles */}
-      <section className="py-24 px-4">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-black text-gray-900 mb-3">Who Is It For?</h2>
-          <p className="text-gray-500 text-sm">Three roles, one platform, one mission.</p>
-        </div>
-        <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-5">
-          {ROLES.map(({role,emoji,label,desc,hover}) => (
-            <Link key={role} href={`/auth?role=${role}`}
-              className={`group bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-card transition-all duration-200 card-hover ${hover}`}>
-              <div className="text-4xl mb-4">{emoji}</div>
-              <h3 className="font-bold text-gray-900 mb-1 text-base">{label}</h3>
-              <p className="text-sm text-gray-500 mb-4 leading-relaxed">{desc}</p>
-              <div className="flex items-center gap-1 text-sm font-semibold text-green-600 group-hover:gap-2 transition-all">
-                Get Started <ArrowRight className="w-3.5 h-3.5"/>
-              </div>
-            </Link>
-          ))}
+      {/* ── Role cards ─────────────────────────────────────────── */}
+      <section style={{ padding: '0 24px 80px' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
+          <div className="text-center mb-10">
+            <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--th-text)', marginBottom: 10 }}>
+              Built for everyone
+            </h2>
+            <p style={{ color: 'var(--th-text-3)' }}>Three roles. One mission. Zero food wasted.</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            {ROLES.map(({ icon: Icon, title, desc, bullets, accent, bg, border, href }, i) => (
+              <motion.div key={title}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+                  <div className="card card-hover p-6 cursor-pointer h-full">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+                      style={{ background: bg, border: `1px solid ${border}` }}>
+                      <Icon className="w-6 h-6" style={{ color: accent }} />
+                    </div>
+                    <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--th-text)' }}>{title}</h3>
+                    <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--th-text-3)' }}>{desc}</p>
+                    <ul className="space-y-1.5">
+                      {bullets.map(b => (
+                        <li key={b} className="flex items-center gap-2 text-xs" style={{ color: 'var(--th-text-2)' }}>
+                          <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: accent }} />
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex items-center gap-1.5 mt-5 text-sm font-semibold" style={{ color: accent }}>
+                      Join as {title.split(' ')[0]} <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 px-4 bg-gray-950 text-center">
-        <div className="max-w-xl mx-auto">
-          <div className="text-5xl mb-5">🍱</div>
-          <h2 className="text-4xl font-black text-white mb-4 leading-tight">
-            Food is going to waste<br/><span className="gradient-text">right now.</span>
+      {/* ── CTA ────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', background: 'var(--th-surface)', borderTop: '1px solid var(--th-border)' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-green"
+            style={{ background: '#16A34A' }}>
+            <Leaf className="w-8 h-8 text-white" />
+          </div>
+          <h2 style={{ fontSize: 36, fontWeight: 900, color: 'var(--th-text)', marginBottom: 12 }}>
+            Ready to rescue food?
           </h2>
-          <p className="text-gray-400 mb-8 text-sm leading-relaxed">Join 500+ donors rescuing food in your city.</p>
-          <Link href="/auth" className="inline-flex items-center gap-2 px-8 py-4 bg-green-500 hover:bg-green-400 text-white font-bold rounded-2xl transition-all hover:-translate-y-0.5 text-sm"
-            style={{ boxShadow:'0 4px 20px rgba(74,222,128,0.35)' }}>
-            Start Rescuing Food →
+          <p style={{ color: 'var(--th-text-3)', fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+            Join hundreds of donors, NGOs, and volunteers using GeminiGrain to eliminate food waste in Delhi NCR.
+          </p>
+          <Link href="/auth" className="btn btn-primary px-8 py-4 text-base">
+            Get Started Free <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 py-8 px-4">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      {/* ── Footer ─────────────────────────────────────────────── */}
+      <footer style={{ borderTop: '1px solid var(--th-border)', padding: '32px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-green-600 rounded-md flex items-center justify-center">
-              <Leaf className="w-3.5 h-3.5 text-white"/>
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: '#16A34A' }}>
+              <Leaf className="w-3 h-3 text-white" />
             </div>
-            <span className="font-bold text-sm text-gray-800">Gemini<span className="text-green-600">Grain</span></span>
+            <span className="font-bold text-sm" style={{ color: 'var(--th-text)' }}>
+              Gemini<span style={{ color: '#16A34A' }}>Grain</span>
+            </span>
           </div>
-          <p className="text-xs text-gray-400">Built for HackDays 2026  GCET x HackBase x MLH  Powered by Google Gemini AI</p>
-          <div className="flex items-center gap-4 text-xs text-gray-400">
-            <Link href="/live" className="hover:text-gray-700">Live Feed</Link>
-            <Link href="/auth" className="hover:text-gray-700">Get Started</Link>
+          <p className="text-xs" style={{ color: 'var(--th-text-4)' }}>
+            Built for HackDays 2026 · Powered by Google Gemini AI · OpenStreetMap
+          </p>
+          <div className="flex items-center gap-4">
+            <Link href="/live" className="flex items-center gap-1 text-xs" style={{ color: 'var(--th-text-3)' }}>
+              <Globe className="w-3 h-3" /> Live Feed
+            </Link>
+            <a href="https://github.com/Aayush9808/ResQFood" target="_blank" rel="noreferrer"
+              className="flex items-center gap-1 text-xs" style={{ color: 'var(--th-text-3)' }}>
+              <Github className="w-3 h-3" /> GitHub
+            </a>
           </div>
         </div>
       </footer>

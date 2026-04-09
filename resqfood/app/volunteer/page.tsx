@@ -9,7 +9,7 @@ import DonationCard from '@/components/DonationCard'
 import type { Donation } from '@/lib/types'
 
 export default function VolunteerHub() {
-  const router      = useRouter()
+  const router    = useRouter()
   const [all, setAll]           = useState<Donation[]>([])
   const [loading, setLoading]   = useState(true)
   const [name, setName]         = useState('Volunteer')
@@ -19,9 +19,7 @@ export default function VolunteerHub() {
       const res  = await fetch('/api/donations')
       const data = await res.json()
       if (data.success) setAll(data.data as Donation[])
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -46,21 +44,18 @@ export default function VolunteerHub() {
   const myPickups = all.filter(d => d.volunteerName === name)
 
   return (
-    <div className="min-h-screen bg-rq-bg">
+    <div className="page pt-16">
       <Navbar />
-      <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
-
-        {/* Header */}
+      <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-black text-gray-900">Volunteer Hub</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Pick up food and deliver it to an NGO · {name}</p>
+          <h1 className="text-2xl font-black" style={{ color: 'var(--th-text)' }}>Volunteer Hub</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--th-text-3)' }}>Deliver food to NGOs · {name}</p>
         </div>
 
-        {/* My pickups */}
         {myPickups.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-              <Truck className="w-4 h-4 text-orange-500" /> Your Active Pickups
+            <h2 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--th-text)' }}>
+              <Truck className="w-4 h-4" style={{ color: 'var(--th-orange-text)' }} /> Your Active Pickups
             </h2>
             <div className="space-y-3">
               {myPickups.map(d => (
@@ -72,23 +67,24 @@ export default function VolunteerHub() {
           </div>
         )}
 
-        {/* Available */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-500" /> Available Pickups ({available.length})
+            <h2 className="text-sm font-bold flex items-center gap-2" style={{ color: 'var(--th-text)' }}>
+              <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--th-green-text)' }} />
+              Available Pickups ({available.length})
             </h2>
-            <button onClick={fetchDonations} className="text-xs text-gray-500 hover:text-gray-700">Refresh</button>
+            <button onClick={fetchDonations} className="text-xs" style={{ color: 'var(--th-text-3)' }}>Refresh</button>
           </div>
+
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#16A34A' }} />
             </div>
           ) : available.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-              <Package className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">No pickups available right now.</p>
-              <p className="text-xs text-gray-400 mt-1">Check back shortly — donations come in fast.</p>
+            <div className="card flex flex-col items-center py-12">
+              <Package className="w-10 h-10 mb-2" style={{ color: 'var(--th-text-4)' }} />
+              <p className="text-sm" style={{ color: 'var(--th-text-3)' }}>No pickups available right now.</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--th-text-4)' }}>Check back shortly.</p>
             </div>
           ) : (
             <AnimatePresence>

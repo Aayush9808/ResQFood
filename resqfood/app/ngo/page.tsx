@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Building2, RotateCcw, Loader2, Filter } from 'lucide-react'
+import { Building2, RotateCcw, Loader2 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import DonationCard from '@/components/DonationCard'
 import type { Donation } from '@/lib/types'
@@ -23,9 +23,7 @@ export default function NGODashboard() {
       const res  = await fetch('/api/donations')
       const data = await res.json()
       if (data.success) setDonations(data.data as Donation[])
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -52,42 +50,36 @@ export default function NGODashboard() {
     .sort((a, b) => (urgOrder[a.urgency] ?? 3) - (urgOrder[b.urgency] ?? 3))
 
   return (
-    <div className="min-h-screen bg-rq-bg">
+    <div className="page pt-16">
       <Navbar />
-      <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
-
-        {/* Header */}
+      <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-black text-gray-900">NGO Queue</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Priority-sorted by urgency · {name}</p>
+            <h1 className="text-2xl font-black" style={{ color: 'var(--th-text)' }}>NGO Queue</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--th-text-3)' }}>Priority-sorted by urgency · {name}</p>
           </div>
-          <button onClick={fetchDonations}
-            className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors">
+          <button onClick={fetchDonations} className="btn btn-ghost p-2">
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl mb-6">
+        {/* Tabs */}
+        <div className="tab-group mb-6">
           {TABS.map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
-                tab === t ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+            <button key={t} onClick={() => setTab(t)} className={`tab-item ${tab === t ? 'active' : ''}`}>
               {t}
             </button>
           ))}
         </div>
 
-        {/* List */}
         {loading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#16A34A' }} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-            <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No donations in this category yet</p>
+          <div className="card flex flex-col items-center py-16">
+            <Building2 className="w-12 h-12 mb-3" style={{ color: 'var(--th-text-4)' }} />
+            <p style={{ color: 'var(--th-text-3)' }}>No donations in this category yet</p>
           </div>
         ) : (
           <AnimatePresence>

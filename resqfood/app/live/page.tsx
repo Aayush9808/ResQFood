@@ -10,10 +10,6 @@ import type { Donation, ImpactStats } from '@/lib/types'
 const STATUS_TABS = ['ALL', 'PENDING', 'MATCHED', 'IN_TRANSIT', 'DELIVERED'] as const
 type StatusTab = typeof STATUS_TABS[number]
 
-const STAT_LABELS: Record<string, string> = {
-  ALL: 'Total', PENDING: 'Pending', MATCHED: 'Matched', IN_TRANSIT: 'In Transit', DELIVERED: 'Delivered',
-}
-
 function LiveClock() {
   const [t, setT] = useState('')
   useEffect(() => {
@@ -22,7 +18,7 @@ function LiveClock() {
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [])
-  return <span className="font-mono text-xs text-gray-400 tabular-nums">{t}</span>
+  return <span className="font-mono text-xs tabular-nums" style={{ color: 'var(--th-text-3)' }}>{t}</span>
 }
 
 export default function LiveFeed() {
@@ -38,9 +34,7 @@ export default function LiveFeed() {
       const sData = await sRes.json()
       if (dData.success) setAll(dData.data as Donation[])
       if (sData.success) setStats(sData.data)
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -52,64 +46,72 @@ export default function LiveFeed() {
   const filtered = allDonations.filter(d => tab === 'ALL' || d.status === tab)
 
   const impactCards = stats ? [
-    { icon: Activity,      label: 'Total',        value: stats.totalDonations,  color: 'text-violet-600', bg: 'bg-violet-50' },
-    { icon: Users,         label: 'Meals Rescued', value: stats.mealsRescued,   color: 'text-green-600',  bg: 'bg-green-50' },
-    { icon: Zap,           label: 'Active Now',    value: stats.activeDonations, color: 'text-orange-600', bg: 'bg-orange-50' },
-    { icon: CheckCircle,   label: 'Delivered',     value: stats.deliveredToday, color: 'text-blue-600',   bg: 'bg-blue-50' },
+    { icon: Activity,    label: 'Total',         value: stats.totalDonations,  varColor: 'var(--th-violet-text)', varBg: 'var(--th-violet-bg)' },
+    { icon: Users,       label: 'Meals Rescued',  value: stats.mealsRescued,    varColor: 'var(--th-green-text)',  varBg: 'var(--th-green-bg)' },
+    { icon: Zap,         label: 'Active Now',     value: stats.activeDonations, varColor: 'var(--th-orange-text)', varBg: 'var(--th-orange-bg)' },
+    { icon: CheckCircle, label: 'Delivered',      value: stats.deliveredToday,  varColor: 'var(--th-blue-text)',   varBg: 'var(--th-blue-bg)' },
   ] : []
 
   return (
-    <div className="min-h-screen bg-rq-bg">
+    <div className="page pt-16">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 py-8 pt-24">
+      <div className="max-w-3xl mx-auto px-4 py-8">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <h1 className="text-2xl font-black text-gray-900">Live Feed</h1>
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <h1 className="text-2xl font-black" style={{ color: 'var(--th-text)' }}>Live Feed</h1>
             </div>
-            <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--th-text-3)' }}>
               <Clock className="w-3.5 h-3.5" />
-              <span>Updates every 5 seconds</span>
-              <span className="mx-1">·</span>
+              <span>Updates every 5s</span>
+              <span>·</span>
               <LiveClock />
             </div>
           </div>
-          <button onClick={fetchAll}
-            className="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-            Refresh
-          </button>
+          <button onClick={fetchAll} className="btn btn-ghost text-xs px-3 py-1.5">Refresh</button>
         </div>
 
         {/* Impact stats */}
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            {impactCards.map(({ icon: Icon, label, value, color, bg }) => (
-              <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3.5">
-                <div className={`w-8 h-8 rounded-xl ${bg} flex items-center justify-center mb-2`}>
-                  <Icon className={`w-4 h-4 ${color}`} />
+            {impactCards.map(({ icon: Icon, label, value, varColor, varBg }) => (
+              <div key={label} className="card p-3.5">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2"
+                  style={{ background: varBg }}>
+                  <Icon className="w-4 h-4" style={{ color: varColor }} />
                 </div>
-                <div className="text-xl font-black text-gray-900">{value.toLocaleString()}</div>
-                <div className="text-[11px] text-gray-500">{label}</div>
+                <div className="text-xl font-black" style={{ color: 'var(--th-text)' }}>
+                  {value.toLocaleString()}
+                </div>
+                <div className="text-[11px]" style={{ color: 'var(--th-text-3)' }}>{label}</div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Status tabs */}
-        <div className="flex gap-1.5 mb-6 flex-wrap">
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
           {STATUS_TABS.map(t => {
             const count = t === 'ALL' ? allDonations.length : allDonations.filter(d => d.status === t).length
+            const isActive = tab === t
             return (
               <button key={t} onClick={() => setTab(t)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
-                  tab === t
-                    ? 'bg-green-600 text-white border-green-600 shadow-sm shadow-green-600/20'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}>
-                {STAT_LABELS[t]}
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${tab === t ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border"
+                style={{
+                  background:  isActive ? '#16A34A' : 'var(--th-surface)',
+                  color:       isActive ? '#fff'    : 'var(--th-text-2)',
+                  borderColor: isActive ? '#16A34A' : 'var(--th-border)',
+                  boxShadow:   isActive ? '0 4px 16px -2px rgb(22 163 74/0.30)' : 'var(--shadow-card)',
+                }}>
+                {t}
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
+                  style={{
+                    background: isActive ? 'rgba(255,255,255,0.2)' : 'var(--th-hover)',
+                    color:      isActive ? '#fff' : 'var(--th-text-3)',
+                  }}>
                   {count}
                 </span>
               </button>
@@ -117,15 +119,15 @@ export default function LiveFeed() {
           })}
         </div>
 
-        {/* Donations */}
+        {/* List */}
         {loading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#16A34A' }} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-            <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No donations in this category</p>
+          <div className="card flex flex-col items-center py-16">
+            <Activity className="w-12 h-12 mb-3" style={{ color: 'var(--th-text-4)' }} />
+            <p style={{ color: 'var(--th-text-3)' }}>No donations in this category</p>
           </div>
         ) : (
           <AnimatePresence>
