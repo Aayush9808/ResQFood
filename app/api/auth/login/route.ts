@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import '@/lib/auth/demo-seed'           // ensure demo accounts exist on first request
 import { sendOTP } from '@/lib/auth/otp-service'
 import { getUserByPhone } from '@/lib/auth/user-store'
 
