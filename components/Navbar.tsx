@@ -6,6 +6,7 @@ import { Heart, LogOut, Menu, X, ChevronDown, Phone, Search, User } from 'lucide
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@/lib/types'
+import { useAuth, getRoleDashboard } from '@/lib/auth-context'
 
 const roleLabel: Record<UserRole, string> = {
   donor:     'Food Donor',
@@ -26,21 +27,20 @@ const roleHome: Record<UserRole, string> = {
 }
 
 export default function Navbar() {
-  const router     = useRouter()
-  const [role, setRole] = useState<UserRole | null>(null)
-  const [open, setOpen] = useState(false)
+  const router        = useRouter()
+  const { user, logout } = useAuth()
+  const role          = user?.role as UserRole | undefined
+  const [open,    setOpen]    = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem('rq_role') as UserRole | null
-    setRole(stored)
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   function signOut() {
-    localStorage.removeItem('rq_role')
+    logout()
     router.push('/')
   }
 
@@ -79,7 +79,7 @@ export default function Navbar() {
             </Link>
           ))}
           {role && (
-            <Link href={roleHome[role]} className="text-sm text-rq-text hover:text-rq-amber font-semibold transition-colors">
+            <Link href={getRoleDashboard(role)} className="text-sm text-rq-text hover:text-rq-amber font-semibold transition-colors">
               Dashboard
             </Link>
           )}
@@ -113,16 +113,16 @@ export default function Navbar() {
           ) : (
             <>
               <Link
-                href="/auth"
+                href="/login"
                 className="text-sm text-rq-text hover:text-rq-amber transition-colors font-medium"
               >
                 Sign in
               </Link>
               <Link
-                href="/auth"
+                href="/register"
                 className="pill-btn flex items-center gap-1.5 text-sm px-5 py-2.5 bg-rq-amber hover:bg-rq-amber-dim text-white transition-colors shadow-lg shadow-amber-200/70"
               >
-                Donate Now
+                Get Started
               </Link>
             </>
           )}
@@ -146,7 +146,7 @@ export default function Navbar() {
           <Link href="/#volunteer" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Volunteer</Link>
           {role ? (
             <>
-              <Link href={roleHome[role]} className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Dashboard</Link>
+              <Link href={getRoleDashboard(role)} className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Dashboard</Link>
               {role === 'donor' && (
                 <Link href="/donor/submit" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Donate Food</Link>
               )}
@@ -155,8 +155,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/auth" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Sign in</Link>
-              <Link href="/auth" className="pill-btn text-center text-sm text-white bg-rq-amber font-semibold py-2.5" onClick={() => setOpen(false)}>Donate Now</Link>
+              <Link href="/login" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Sign in</Link>
+              <Link href="/register" className="pill-btn text-center text-sm text-white bg-rq-amber font-semibold py-2.5" onClick={() => setOpen(false)}>Get Started</Link>
             </>
           )}
         </div>

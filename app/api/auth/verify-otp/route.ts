@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { otpStore, verifiedUsers } from '../../../../lib/auth-store'
+import { verifyOTP }        from '@/lib/auth/otp-service'
+import { getUserByPhone }    from '@/lib/auth/user-store'
+import { createSession }     from '@/lib/auth/session-service'
 
 export async function POST(req: Request) {
   try {
@@ -7,61 +9,45 @@ export async function POST(req: Request) {
 
     if (!phoneNumber || !otp) {
       return NextResponse.json(
-        { success: false, message: 'Phone number and OTP required' },
-        { status: 400 }
+        { success: false, message: 'Phone number and OTP are required.' },
+        { status: 400 },
       )
     }
 
-    const storedData = otpStore.get(phoneNumber)
+    const result = verifyOTP(phoneNumber, String(otp))
 
-    if (!storedData) {
+    if (!result.ok) {
       return NextResponse.json(
-        { success: false, message: 'OTP not found. Request a new OTP.' },
-        { status: 400 }
+        { success: false, message: result.message },
+        { status: 400 },
       )
     }
 
-    // Check if OTP is expired (5 minutes)
-    if (Date.now() - storedData.timestamp > 5 * 60 * 1000) {
-      otpStore.delete(phoneNumber)
-      return NextResponse.json(
-        { success: false, message: 'OTP expired. Request a new one.' },
-        { status: 400 }
-      )
+    // Check if user already exists (login flow) vs new registration
+    const existingUser = getUserByPhone(phoneNumber)
+
+    if (existingUser) {
+      const session = createSession(existingUser.id, phoneNumber, existingUser.role)
+      return NextResponse.json({
+        success:   true,
+        message:   'OTP verified. Login successful.',
+        token:     session.token,
+        user:      existingUser,
+        isNewUser: false,
+      })
     }
 
-    // Check attempts (max 3)
-    if (storedData.attempts >= 3) {
-      otpStore.delete(phoneNumber)
-      return NextResponse.json(
-        { success: false, message: 'Too many attempts. Request new OTP.' },
-        { status: 400 }
-      )
-    }
-
-    // Verify OTP
-    if (storedData.otp !== otp) {
-      storedData.attempts += 1
-      return NextResponse.json(
-        { success: false, message: 'Invalid OTP', attempts: storedData.attempts },
-        { status: 400 }
-      )
-    }
-
-    // OTP verified
-    verifiedUsers.set(phoneNumber, { verifiedAt: Date.now() })
-    otpStore.delete(phoneNumber)
-
+    // New user — OTP verified, caller should proceed to /register
     return NextResponse.json({
-      success: true,
-      message: 'OTP verified successfully',
+      success:   true,
+      message:   'OTP verified. Please complete registration.',
       phoneNumber,
+      isNewUser: true,
     })
-  } catch (error) {
-    console.error('Error verifying OTP:', error)
+  } catch {
     return NextResponse.json(
-      { success: false, message: 'Failed to verify OTP' },
-      { status: 500 }
+      { success: false, message: 'Failed to verify OTP. Please try again.' },
+      { status: 500 },
     )
   }
 }

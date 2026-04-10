@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Toaster } from 'react-hot-toast'
+import { Toaster }      from 'react-hot-toast'
 import { Playfair_Display, Inter, JetBrains_Mono } from 'next/font/google'
+import { AuthProvider } from '@/lib/auth-context'
 
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-serif-display' })
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans-body' })
@@ -18,8 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${playfair.variable} ${inter.variable} ${jetMono.variable} bg-rq-bg text-rq-text antialiased min-h-screen`}>
-        {children}
-        <Toaster
+        <AuthProvider>
+          {children}
+          <Toaster
           position="top-right"
           toastOptions={{
             style: {
@@ -38,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             },
           }}
         />
+        </AuthProvider>
       </body>
     </html>
   )
