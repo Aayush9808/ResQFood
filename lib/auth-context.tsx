@@ -7,7 +7,28 @@ import {
   useEffect,
   useState,
 } from 'react'
-import type { AuthUser, UserRole } from './auth/types'
+import type { AuthUser, UserRole, IndividualDonor, OrganizationDonor, VolunteerUser, NGOUser } from './auth/types'
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getDisplayName(user: AuthUser): string {
+  if (user.role === 'donor') {
+    return user.subtype === 'individual'
+      ? (user as IndividualDonor).name
+      : (user as OrganizationDonor).organizationName
+  }
+  if (user.role === 'volunteer') return (user as VolunteerUser).name
+  if (user.role === 'ngo')       return (user as NGOUser).ngoName
+  return ''
+}
+
+function setLegacyKeys(user: AuthUser) {
+  // Dashboards read rq_user (expects a .verified boolean) and rq_name
+  const userForDash = { ...user, verified: user.verificationStatus !== 'unverified' }
+  localStorage.setItem('rq_user', JSON.stringify(userForDash))
+  const name = getDisplayName(user)
+  if (name) localStorage.setItem('rq_name', name)
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -40,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(TOKEN_KEY,  token)
     localStorage.setItem(USER_KEY,   JSON.stringify(user))
     localStorage.setItem(LEGACY_KEY, user.role)   // keep old code working
+    setLegacyKeys(user)                            // rq_user + rq_name for dashboards
     setState({ user, token, isLoading: false })
   }, [])
 
@@ -47,6 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
     localStorage.removeItem(LEGACY_KEY)
+    localStorage.removeItem('rq_user')
+    localStorage.removeItem('rq_name')
     setState({ user: null, token: null, isLoading: false })
   }, [])
 
@@ -65,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json()
         localStorage.setItem(USER_KEY,   JSON.stringify(data.user))
         localStorage.setItem(LEGACY_KEY, data.user.role)
+        setLegacyKeys(data.user)
         setState({ user: data.user, token, isLoading: false })
       } else {
         logout()

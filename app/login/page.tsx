@@ -5,18 +5,18 @@ import { useRouter }  from 'next/navigation'
 import toast          from 'react-hot-toast'
 import {
   Heart, Phone, ShieldCheck,
-  Loader2, ChevronRight, AlertCircle,
+  Loader2, ChevronRight, AlertCircle, Zap,
+  UtensilsCrossed, Building2, Bike,
 } from 'lucide-react'
 import { useAuth, getRoleDashboard } from '@/lib/auth-context'
 import type { UserRole } from '@/lib/auth/types'
-import DemoButton from '@/components/DemoButton'
-import { DEMO_LOGIN } from '@/lib/demo-data'
 
 type Phase = 'phone' | 'otp'
 
 export default function LoginPage() {
   const router    = useRouter()
   const { login } = useAuth()
+  const [demoLoading, setDemoLoading] = useState<UserRole | null>(null)
 
   const [phase,   setPhase]   = useState<Phase>('phone')
   const [phone,   setPhone]   = useState('')
@@ -98,30 +98,27 @@ export default function LoginPage() {
     await handleSendOTP()
   }
 
-  function applyDemoCredentials() {
-    setPhone(DEMO_LOGIN.phone)
-    setOtp(DEMO_LOGIN.otp)
-    setDemoOtp(DEMO_LOGIN.otp)
-    setError('')
-    setLoading(true)
-    // Auto-register demo user if they don't exist yet, then skip to OTP step
-    fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phoneNumber: DEMO_LOGIN.phone,
-        role: 'donor',
-        subtype: 'individual',
-        details: { name: 'Demo User', email: 'demo@geminigrain.app', address: 'Demo City, India' }
-      }),
-    })
-      .then(() => {/* ignore duplicate 409 — user may already exist */})
-      .catch(() => {/* network error fine in demo */})
-      .finally(() => {
-        setLoading(false)
-        toast.success('Demo credentials loaded! Click Verify & Sign In.')
-        setPhase('otp')
+  async function handleDemoLogin(role: UserRole) {
+    setDemoLoading(role)
+    try {
+      const res  = await fetch('/api/auth/demo-login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ role }),
       })
+      const data = await res.json()
+      if (!data.success) {
+        toast.error('Demo login failed. Please try again.')
+        return
+      }
+      login(data.token, data.user)
+      toast.success('Demo access granted — welcome!')
+      router.push(getRoleDashboard(role))
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setDemoLoading(null)
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -144,8 +141,36 @@ export default function LoginPage() {
           <span className="font-serif text-2xl font-bold text-rq-text">GeminiGrain</span>
         </div>
         <p className="text-rq-muted text-sm">Sign in to your account</p>
-        <div className="mt-3">
-          <DemoButton onFill={applyDemoCredentials} label="Use Demo Credentials" />
+      </div>
+
+      {/* ── Demo Access Panel ──────────────────────────────────────────────── */}
+      <div className="w-full max-w-sm mb-5">
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-900">Quick Demo Access</span>
+            <span className="ml-auto text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">No OTP needed</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { role: 'donor'    as UserRole, label: 'Food Donor',  icon: UtensilsCrossed, href: '/donor'     },
+              { role: 'ngo'      as UserRole, label: 'NGO Partner', icon: Building2,       href: '/ngo'       },
+              { role: 'volunteer'as UserRole, label: 'Volunteer',   icon: Bike,            href: '/volunteer' },
+            ] as const).map(({ role, label, icon: Icon }) => (
+              <button
+                key={role}
+                onClick={() => handleDemoLogin(role)}
+                disabled={demoLoading !== null}
+                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-50 transition-all text-amber-900 disabled:opacity-60"
+              >
+                {demoLoading === role
+                  ? <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
+                  : <Icon className="w-5 h-5 text-amber-600" />
+                }
+                <span className="text-xs font-semibold leading-tight text-center">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
