@@ -67,9 +67,9 @@ export default function Navbar() {
         {/* Desktop links */}
         <div className="hidden lg:flex items-center gap-7">
           {[
-            { label: 'Home', href: '/' },
-            { label: 'About', href: '/#about' },
-            { label: 'Rescues', href: '/#rescues' },
+            { label: 'Home',      href: '/'          },
+            { label: 'About',     href: '/about'      },
+            { label: 'Rescues',   href: '/#rescues'   },
             { label: 'Volunteer', href: '/#volunteer' },
           ].map((item) => (
             <Link key={item.label} href={item.href} className="text-sm text-rq-text hover:text-rq-amber transition-colors font-medium inline-flex items-center gap-1">
