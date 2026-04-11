@@ -410,8 +410,8 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <a href="/register" className="text-rq-amber hover:underline font-semibold">Register</a>
         </p>
-      </div>{/* /auth card */}
-      </div>{/* /right panel */}
-    </div>{/* /root flex */}
+      </div>
+      </div>
+    </div>
   )
 }
