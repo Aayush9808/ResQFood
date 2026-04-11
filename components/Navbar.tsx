@@ -69,8 +69,8 @@ export default function Navbar() {
           {[
             { label: 'Home',      href: '/'          },
             { label: 'About',     href: '/about'      },
-            { label: 'Rescues',   href: '/#rescues'   },
-            { label: 'Volunteer', href: '/#volunteer' },
+            { label: 'Rescues',   href: '/rescues'   },
+            { label: 'Volunteer', href: '/volunteer-info' },
           ].map((item) => (
             <Link key={item.label} href={item.href} className="text-sm text-rq-text hover:text-rq-amber transition-colors font-medium inline-flex items-center gap-1">
               {item.label}
@@ -146,8 +146,8 @@ export default function Navbar() {
         <div className="md:hidden bg-white px-4 py-5 flex flex-col gap-3 shadow-lg">
           <Link href="/" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Home</Link>
           <Link href="/#about" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>About</Link>
-          <Link href="/#rescues" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Rescues</Link>
-          <Link href="/#volunteer" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Volunteer</Link>
+          <Link href="/rescues" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Rescues</Link>
+          <Link href="/volunteer-info" className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Volunteer</Link>
           {role ? (
             <>
               <Link href={getRoleDashboard(role)} className="text-sm text-rq-text py-2" onClick={() => setOpen(false)}>Dashboard</Link>

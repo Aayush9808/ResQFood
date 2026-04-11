@@ -249,6 +249,12 @@ export default function LandingPage() {
                 </article>
               ))}
             </div>
+
+            <div className="mt-12 text-center">
+              <Link href="/rescues" className="pill-btn inline-flex items-center gap-2 bg-rq-amber text-white px-8 py-3.5 text-sm font-semibold">
+                View All Rescues <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -271,6 +277,7 @@ export default function LandingPage() {
             <div className="text-center mb-11">
               <p className="label-kicker">Volunteer</p>
               <h2 className="mt-4 text-[40px] leading-tight font-bold">Volunteer Positions Available</h2>
+              <p className="mt-3 text-rq-muted max-w-lg mx-auto">From pickup to coordination — there is a role for every skill set.</p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -283,6 +290,12 @@ export default function LandingPage() {
                   <p className="mt-2 text-[15px] text-rq-muted leading-relaxed">{item.description}</p>
                 </article>
               ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Link href="/volunteer-info" className="pill-btn inline-flex items-center gap-2 bg-rq-amber text-white px-8 py-3.5 text-sm font-semibold">
+                Explore Volunteer Opportunities <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </section>
