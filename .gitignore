@@ -32,3 +32,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# legacy project copy
+resqfood/
+
+# copilot chat exports
+"## GitHub Copilot Chat.md"
+*.copilot.md
