@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter }        from 'next/navigation'
 import toast                from 'react-hot-toast'
 import {
-  User, Building2, Truck, Heart,
+  User, Building2, Truck,
   Phone, ShieldCheck, FileText,
   Upload, CheckCircle2, ChevronRight,
   ChevronLeft, Loader2, Eye, EyeOff,
@@ -353,11 +353,10 @@ export default function RegisterPage() {
           <ChevronLeft className="w-3.5 h-3.5" />
           Back to Home
         </a>
-        <div className="flex justify-center">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <Heart className="w-6 h-6 text-rq-amber" fill="#F5A623" />
-            <span className="font-serif text-2xl font-bold text-rq-text">GeminiGrain</span>
-          </div>
+        <div className="flex justify-center mb-3">
+          <a href="/" className="inline-block transition-opacity hover:opacity-80">
+            <img src="/logo.png" alt="GeminiGrain Logo" className="h-10 w-auto object-contain" />
+          </a>
         </div>
         <p className="text-rq-muted text-sm">Create your account — it takes under 2 minutes</p>
         <div className="mt-3 flex justify-center">
@@ -405,7 +404,7 @@ export default function RegisterPage() {
 
             <div className="grid gap-3 mb-6">
               {[
-                { role: 'donor',     icon: Heart,     label: 'Food Donor',     desc: 'Donate surplus food from home, restaurant, or events.' },
+                { role: 'donor',     icon: User,      label: 'Food Donor',     desc: 'Donate surplus food from home, restaurant, or events.' },
                 { role: 'volunteer', icon: Truck,      label: 'Volunteer',      desc: 'Pick up and deliver food to NGOs in your area.' },
                 { role: 'ngo',       icon: Building2,  label: 'NGO / Charity',  desc: 'Receive food donations for beneficiaries you serve.' },
               ].map(({ role, icon: Icon, label, desc }) => (

@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Heart, LogOut, Menu, X, ChevronDown, Phone, Search, User } from 'lucide-react'
+import { LogOut, Menu, X, ChevronDown, Phone, Search, User } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@/lib/types'
@@ -55,14 +56,15 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-full bg-rq-amber flex items-center justify-center shadow-lg shadow-amber-300/60">
-            <Heart className="w-4 h-4 text-white" fill="white" />
-          </div>
-          <div>
-            <div className="font-serif font-bold text-lg leading-tight text-rq-text">GeminiGrain</div>
-            <div className="text-[11px] uppercase tracking-[0.18em] text-rq-subtle">Share More. Waste Less.</div>
-          </div>
+        <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
+          <Image
+            src="/logo.png"
+            alt="GeminiGrain Logo"
+            width={140}
+            height={36}
+            className="h-9 w-auto object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop links */}

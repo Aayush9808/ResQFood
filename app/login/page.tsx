@@ -4,7 +4,7 @@ import { useState }   from 'react'
 import { useRouter }  from 'next/navigation'
 import toast          from 'react-hot-toast'
 import {
-  Heart, Phone, ShieldCheck,
+  Phone, ShieldCheck,
   Loader2, ChevronRight, AlertCircle, Zap,
   UtensilsCrossed, Building2, Bike, Check,
 } from 'lucide-react'
@@ -143,11 +143,10 @@ export default function LoginPage() {
           <ChevronRight className="w-3.5 h-3.5 rotate-180" />
           Back to Home
         </a>
-        <div className="flex justify-center">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <Heart className="w-6 h-6 text-rq-amber" fill="#F5A623" />
-            <span className="font-serif text-2xl font-bold text-rq-text">GeminiGrain</span>
-          </div>
+        <div className="flex justify-center mb-2">
+          <a href="/" className="inline-block transition-opacity hover:opacity-80">
+            <img src="/logo.png" alt="GeminiGrain Logo" className="h-10 w-auto object-contain" />
+          </a>
         </div>
         <p className="text-rq-muted text-sm">Sign in to your account</p>
       </div>
