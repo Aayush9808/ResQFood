@@ -36,6 +36,10 @@ next-env.d.ts
 # legacy project copy
 resqfood/
 
+# user-uploaded files
+public/uploads/*
+!public/uploads/.gitkeep
+
 # copilot chat exports
 "## GitHub Copilot Chat.md"
 *.copilot.md
