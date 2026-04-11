@@ -129,7 +129,7 @@ export default function LandingPage() {
                 </p>
                 <div className="mt-8">
                   <Link
-                    href="/auth"
+                    href="/login"
                     className="pill-btn inline-flex items-center gap-2 bg-rq-text hover:bg-black text-white px-7 py-3.5 text-sm"
                   >
                     Donate Now
@@ -207,7 +207,7 @@ export default function LandingPage() {
                 Our platform enables restaurants, events, and institutions to list safe surplus meals in minutes. NGOs and volunteers then coordinate pickup and delivery using real-time updates and guided flow stages.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/auth" className="pill-btn inline-flex items-center gap-2 bg-rq-text text-white px-6 py-3 text-sm">
+                <Link href="/login" className="pill-btn inline-flex items-center gap-2 bg-rq-text text-white px-6 py-3 text-sm">
                   Learn More
                 </Link>
                 <button className="pill-btn inline-flex items-center gap-2 bg-rq-green hover:bg-rq-green-dim text-white px-6 py-3 text-sm">

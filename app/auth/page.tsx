@@ -1,14 +1,9 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Utensils, Building2, Bike, ArrowRight, Heart, Phone, CheckCircle, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
-import toast from 'react-hot-toast'
-import type { UserRole } from '@/lib/types'
-
-type AuthStep = 'role' | 'details' | 'success'
+// Old onboarding flow — replaced by /login + /register
+export default function AuthPage() {
+  redirect('/login')
+}
 
 const ROLES: { role: UserRole; icon: typeof Utensils; title: string; desc: string; color: string; border: string; bg: string; dot: string }[] = [
   {
